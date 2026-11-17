@@ -5,7 +5,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 
 const app = express();
-const DB_FILE = path.join(__dirname, 'mess.db');
+const DB_FILE = process.env.DB_PATH || path.join(__dirname, 'mess.db');
 const db = new Database(DB_FILE);
 const HOUSE_CODE = process.env.HOUSE_CODE || 'mess123'; // members need this to register
 

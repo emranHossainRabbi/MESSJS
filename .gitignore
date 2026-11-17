@@ -1,7 +1,12 @@
-
 node_modules/
 .env
 .env.*
 !.env.example
+
+# SQLite database files
+*.db
+*.db-wal
+*.db-shm
+
+# Logs
 *.log
-.DS_Store
