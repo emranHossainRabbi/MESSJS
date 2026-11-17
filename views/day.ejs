@@ -1,0 +1,17 @@
+<%- include('head') %>
+<form class="row" method="get"><label>Date <input type="date" name="day" value="<%= day %>" onchange="this.form.submit()"></label></form>
+<section><h2>Meals on <%= day %></h2><div class="grid">
+<div><div class="mut">Breakfast</div><div class="big"><%= g(totals.breakfast) %></div></div>
+<div><div class="mut">Lunch</div><div class="big"><%= g(totals.lunch) %></div></div>
+<div><div class="mut">Dinner</div><div class="big"><%= g(totals.dinner) %></div></div>
+<div><div class="mut">Total</div><div class="big"><%= g(totals.breakfast + totals.lunch + totals.dinner) %></div></div></div></section>
+<section><h2>Who eats what</h2><div class="wrap"><table>
+<tr><th>Name</th><th class="n">Breakfast</th><th class="n">Lunch</th><th class="n">Dinner</th></tr>
+<% rows.forEach(r => { %><tr><td><%= r.name %></td><td class="n"><%= g(r.breakfast) %></td><td class="n"><%= g(r.lunch) %></td><td class="n"><%= g(r.dinner) %></td></tr><% }) %>
+</table></div></section>
+<section><h2>Groceries bought on <%= day %></h2><div class="wrap"><table>
+<% exps.forEach(e => { %><tr><td><%= e.name %></td><td><%= e.item %></td><td class="n"><%= f2(e.amount) %></td></tr><% }) %>
+<% if (!exps.length) { %><tr><td class="mut">No expenses on this day.</td></tr><% } else { %>
+<tr><th colspan="2">Total</th><th class="n"><%= f2(exps.reduce((a, e) => a + e.amount, 0)) %></th></tr><% } %>
+</table></div></section>
+<%- include('foot') %>

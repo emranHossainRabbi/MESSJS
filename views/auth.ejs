@@ -1,0 +1,9 @@
+<%- include('head') %>
+<section><h1><%= mode === 'register' ? 'Join the house' : 'Log in' %></h1>
+<form method="post" class="row" style="flex-direction:column;max-width:320px">
+<input name="name" placeholder="Your name" required>
+<input name="pw" type="password" placeholder="Password" required>
+<% if (mode === 'register') { %><input name="code" placeholder="House code" required><% } %>
+<button><%= mode === 'register' ? 'Create account' : 'Log in' %></button></form>
+<p class="mut"><% if (mode === 'login') { %>New member? <a href="/register">Create an account</a><% } else { %>Already have one? <a href="/login">Log in</a><% } %></p></section>
+<%- include('foot') %>

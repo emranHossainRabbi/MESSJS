@@ -1,0 +1,60 @@
+<%- include('head') %>
+<h1>Admin portal</h1>
+<form class="row" method="get"><label>Month <input type="month" name="month" value="<%= month %>" onchange="this.form.submit()"></label></form>
+
+<section><h2>Month summary: <%= month %></h2>
+<p class="mut">House total: <%= f0(te) %> spent over <%= g(tm) %> meals = <%= f2(rate) %> per meal.</p>
+<div class="wrap"><table>
+<tr><th>Name</th><th class="n">Meals</th><th class="n">Spent</th><th class="n">Cost</th><th class="n">Balance</th></tr>
+<% rows.forEach(r => { %><tr><td><%= r.name %></td><td class="n"><%= g(r.meals) %></td><td class="n"><%= f0(r.spent) %></td><td class="n"><%= f0(r.cost) %></td><td class="n"><%= f0(r.balance) %></td></tr><% }) %>
+</table></div></section>
+
+<section><h2>Members</h2>
+<form class="row" method="post" action="/admin/member">
+<input type="hidden" name="month" value="<%= month %>">
+<input name="name" placeholder="New member name" required>
+<input name="pw" placeholder="Password (4+ characters)" required>
+<button>Add member</button></form>
+<div class="wrap"><table>
+<% members.forEach(m => { %><tr>
+<td><%= m.name %> <span class="mut"><%= m.is_admin ? '(admin)' : '' %></span></td>
+<td><form class="row" method="post" action="/admin/member/<%= m.id %>/password">
+<input type="hidden" name="month" value="<%= month %>">
+<input name="pw" placeholder="New password" style="width:9em" required><button>Change password</button></form></td>
+<td><% if (m.id !== user.uid) { %>
+<form method="post" action="/admin/member/<%= m.id %>/role" style="display:inline"><input type="hidden" name="month" value="<%= month %>"><button><%= m.is_admin ? 'Remove admin' : 'Make admin' %></button></form>
+<form method="post" action="/admin/member/<%= m.id %>/delete" style="display:inline" onsubmit="return confirm('Delete <%= m.name.replace(/'/g, '') %> and all their meals and expenses?')"><input type="hidden" name="month" value="<%= month %>"><button class="x">Delete</button></form>
+<% } %></td></tr><% }) %>
+</table></div></section>
+
+<section><h2>Enter meals for a member</h2>
+<form class="row" method="post" action="/admin/meal">
+<input type="hidden" name="month" value="<%= month %>">
+<select name="user_id" required><% members.forEach(m => { %><option value="<%= m.id %>"><%= m.name %></option><% }) %></select>
+<input type="date" name="day" value="<%= today %>" required>
+<label>Breakfast <input type="number" name="breakfast" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<label>Lunch <input type="number" name="lunch" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<label>Dinner <input type="number" name="dinner" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<button>Save meals</button></form>
+<p class="mut">Saving the same member and date again replaces the old numbers.</p></section>
+
+<section><h2>Grocery expenses: <%= month %></h2>
+<form class="row" method="post" action="/admin/expense">
+<input type="hidden" name="month" value="<%= month %>">
+<select name="user_id" required><% members.forEach(m => { %><option value="<%= m.id %>"><%= m.name %></option><% }) %></select>
+<input type="date" name="day" value="<%= today %>" required>
+<input name="item" placeholder="Item" required>
+<input type="number" name="amount" step="0.01" min="0" placeholder="Amount" required>
+<button>Add expense</button></form>
+<div class="wrap"><table>
+<% exps.forEach(e => { %><tr><td><%= e.day %></td><td><%= e.name %></td><td><%= e.item %></td><td class="n"><%= f2(e.amount) %></td>
+<td class="n"><form method="post" action="/admin/expense/<%= e.id %>/delete" onsubmit="return confirm('Delete this expense?')"><input type="hidden" name="month" value="<%= month %>"><button class="x">Delete</button></form></td></tr><% }) %>
+<% if (!exps.length) { %><tr><td class="mut">No expenses this month.</td></tr><% } %>
+</table></div></section>
+
+<section><h2>Data</h2>
+<p><a href="/admin/backup">Download a backup of the database</a></p>
+<form method="post" action="/admin/clear" onsubmit="return confirm('Delete ALL meals and expenses for <%= month %>? This cannot be undone.')">
+<input type="hidden" name="month" value="<%= month %>">
+<button class="x">Delete all meals and expenses for <%= month %></button></form></section>
+<%- include('foot') %>

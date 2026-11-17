@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mess Hisab</title><link rel="stylesheet" href="/style.css"></head><body>
+<header><strong>Mess Hisab</strong>
+<% if (user) { %><span><a href="/day">Daily meals</a> · <% if (user.admin) { %><a href="/admin">Admin portal</a> · <% } %><%= user.name %> · <a href="/logout">Log out</a></span><% } %></header>
+<main><% if (flash) { %><div class="flash"><%= flash %></div><% } %>

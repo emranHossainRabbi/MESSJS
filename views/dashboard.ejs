@@ -1,0 +1,53 @@
+<%- include('head') %>
+<form class="row" method="get"><label>Month <input type="month" name="month" value="<%= month %>" onchange="this.form.submit()"></label></form>
+<section><h2>Your account for <%= month %></h2><div class="grid">
+<div><div class="mut">Your meals</div><div class="big"><%= g(me.meals) %></div></div>
+<div><div class="mut">You spent</div><div class="big"><%= f0(me.spent) %></div></div>
+<div><div class="mut">Your meal cost</div><div class="big"><%= f0(me.cost) %></div></div>
+<div><div class="mut"><%= me.balance >= 0 ? 'House owes you' : 'You owe the house' %></div><div class="big"><%= f0(Math.abs(me.balance)) %></div></div></div>
+<p class="mut">House total: <%= f0(te) %> spent over <%= g(tm) %> meals = <%= f2(rate) %> per meal.</p></section>
+
+<section><h2>Enter or edit your meals</h2>
+<form class="row" method="post" action="/meal" id="mf">
+<input type="date" name="day" value="<%= today %>" required>
+<label>Breakfast <input type="number" name="breakfast" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<label>Lunch <input type="number" name="lunch" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<label>Dinner <input type="number" name="dinner" step="0.5" min="0" max="10" value="0" style="width:5em"></label>
+<button>Save meals</button></form>
+<p class="mut">Saving the same date again replaces the old numbers. Use 0 for no meal.</p>
+<div class="wrap"><table>
+<tr><th>Date</th><th class="n">Breakfast</th><th class="n">Lunch</th><th class="n">Dinner</th><th></th></tr>
+<% meals.forEach(m => { %><tr><td><%= m.day %></td><td class="n"><%= g(m.breakfast) %></td><td class="n"><%= g(m.lunch) %></td><td class="n"><%= g(m.dinner) %></td>
+<td class="n"><button type="button" class="x" style="color:var(--ac)" onclick="editMeal('<%= m.day %>',<%= m.breakfast || 0 %>,<%= m.lunch || 0 %>,<%= m.dinner || 0 %>)">Edit</button></td></tr><% }) %>
+<% if (!meals.length) { %><tr><td colspan="5" class="mut">No meals entered this month.</td></tr><% } %></table></div>
+<script>function editMeal(d,b,l,n){var f=document.getElementById('mf');f.day.value=d;f.breakfast.value=b;f.lunch.value=l;f.dinner.value=n;f.scrollIntoView();}</script></section>
+
+<section><h2>Add a grocery expense</h2>
+<form class="row" method="post" action="/expense">
+<input type="date" name="day" value="<%= today %>" required>
+<input name="item" placeholder="What did you buy?" required>
+<input type="number" name="amount" step="0.01" min="0" placeholder="Amount" required>
+<button>Add expense</button></form>
+<div class="wrap"><table>
+<% exps.forEach(e => { %><tr><td><%= e.day %></td><td><%= e.item %></td><td class="n"><%= f2(e.amount) %></td>
+<td class="n"><form method="post" action="/expense/<%= e.id %>/delete"><button class="x" onclick="return confirm('Delete this expense?')">Delete</button></form></td></tr><% }) %>
+<% if (!exps.length) { %><tr><td class="mut">No expenses added this month.</td></tr><% } %></table></div></section>
+
+<section><h2>House today (<%= today %>)</h2><div class="grid">
+<div><div class="mut">Breakfast</div><div class="big"><%= g(tt.breakfast) %></div></div>
+<div><div class="mut">Lunch</div><div class="big"><%= g(tt.lunch) %></div></div>
+<div><div class="mut">Dinner</div><div class="big"><%= g(tt.dinner) %></div></div></div>
+<p><a href="/day">See who is eating, and other days</a></p></section>
+
+<section><h2>Everyone's grocery expenses for <%= month %></h2>
+<div class="wrap"><table>
+<tr><th>Date</th><th>Bought by</th><th>Item</th><th class="n">Amount</th></tr>
+<% houseExps.forEach(e => { %><tr><td><%= e.day %></td><td><%= e.name %></td><td><%= e.item %></td><td class="n"><%= f2(e.amount) %></td></tr><% }) %>
+<% if (!houseExps.length) { %><tr><td colspan="4" class="mut">No expenses this month.</td></tr><% } %>
+<tr><th colspan="3">Total</th><th class="n"><%= f2(te) %></th></tr></table></div></section>
+
+<% if (everyone) { %><section><h2>All members (manager view)</h2><div class="wrap"><table>
+<tr><th>Name</th><th class="n">Meals</th><th class="n">Spent</th><th class="n">Cost</th><th class="n">Balance</th></tr>
+<% everyone.forEach(r => { %><tr><td><%= r.name %></td><td class="n"><%= g(r.meals) %></td><td class="n"><%= f0(r.spent) %></td><td class="n"><%= f0(r.cost) %></td><td class="n"><%= f0(r.balance) %></td></tr><% }) %>
+</table></div></section><% } %>
+<%- include('foot') %>
